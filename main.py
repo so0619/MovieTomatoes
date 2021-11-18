@@ -18,7 +18,7 @@ import webcrawl.WebCrawlService as wcs
 # 1.데이터 수집 및 저장
 ####################
 
-movie_code = '209496' # 네이버 영화 code
+movie_code = '209496'  # 네이버 영화 code
 
 # 1.제목 수집
 title = wcs.get_movie_title(movie_code)
@@ -29,19 +29,23 @@ pages = wcs.calc_pages(movie_code)
 print(pages)
 
 # 3.리뷰 수집
-wcs.get_reviews(movie_code , pages, title)
-
-
-
-
-
-
-
+# wcs.get_reviews(movie_code, pages, title)
 
 
 ################
 # 2.인공지능 분석
 ################
+
+
+
+
+
+
+
+
+
+
+
 
 #################
 # 3.분석결과 시각화
