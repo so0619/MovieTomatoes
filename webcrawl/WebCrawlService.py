@@ -2,29 +2,32 @@ import math
 import re
 import requests
 from bs4 import BeautifulSoup
+from model.MongoDAO import add_review
 
 
 def get_movie_title(movie_code):
     url = 'https://movie.naver.com/movie/bi/mi/basic.naver?code={}'.format(movie_code)
     result = requests.get(url)
-    doc = BeautifulSoup(result.text,'html.parser')
+    doc = BeautifulSoup(result.text, 'html.parser')
     title = doc.select('h3.h_movie > a')[0].get_text()
     return title
+
 
 def calc_pages(movie_code):
     url = 'https://movie.naver.com/movie/bi/mi/basic.naver?code={}'.format(movie_code)
     result = requests.get(url)
-    doc = BeautifulSoup(result.text,'html.parser')
+    doc = BeautifulSoup(result.text, 'html.parser')
     all_count = doc.select('strong.total > em')[0].get_text().strip()
-    numbers = re.sub(r'[^0-9]','',all_count)
+    numbers = re.sub(r'[^0-9]', '', all_count)
     pages = math.ceil(int(all_count)/10)
     return pages
 
-def get_reviews(movie_code,pages,title):
+
+def get_reviews(movie_code, pages, title):
     count = 0  # Total Review Count
 
     for page in range(1, pages + 1):
-        new_url = 'https://movie.naver.com/movie/bi/mi/pointWriteFormList.naver?code={}&type=after&isActualPointWriteExecute=false&isMileageSubscriptionAlready=false&isMileageSubscriptionReject=false&page={}'.format(movie_code,page)
+        new_url = 'https://movie.naver.com/movie/bi/mi/pointWriteFormList.naver?code={}&type=after&isActualPointWriteExecute=false&isMileageSubscriptionAlready=false&isMileageSubscriptionReject=false&page={}'.format(movie_code, page)
         result = requests.get(new_url)
         doc = BeautifulSoup(result.text, 'html.parser')
         review_list = doc.select('div.score_result > ul > li')
@@ -55,4 +58,13 @@ def get_reviews(movie_code,pages,title):
             print('WRITER -> {}'.format(writer))
             print('SCORE -> {}'.format(score))
             print('DATE -> {}'.format(date))
+
+            # MongoDB에 Review 저장
+            # -> MongoDB는 Dict type으로 데이터를 CRUD
+            data = {'title': title,
+                    'score': score,
+                    'review': review,
+                    'writer': writer,
+                    'date': date}
+            add_review(data)
 
